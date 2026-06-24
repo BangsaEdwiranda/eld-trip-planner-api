@@ -3,7 +3,7 @@
 Takes the segment list from ``hos.plan_timeline`` (absolute datetimes) and groups
 it into one sheet per calendar day, splitting any segment that crosses midnight.
 Each segment is expressed in minutes-from-local-midnight so the frontend can draw
-it directly on the 24-hour grid (see docs/eld-log-format.md).
+it directly on the 24-hour grid (see documentation/eld-log-format.md).
 """
 
 from __future__ import annotations
