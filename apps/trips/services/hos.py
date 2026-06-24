@@ -2,7 +2,7 @@
 
 Walks the planned route leg by leg and emits an ordered timeline of duty-status
 segments that comply with the FMCSA 70hr/8day property-carrier rules
-(see docs/hos-rules.md).
+(see documentation/hos-rules.md).
 
 Modeled limits:
 - 11-hour driving limit per window
