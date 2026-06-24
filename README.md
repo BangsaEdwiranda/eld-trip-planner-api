@@ -29,10 +29,11 @@ eld-trip-planner-api/
 │     ├─ views.py          # TripViewSet: plan a trip end-to-end
 │     ├─ urls.py           # /api/trips/ router
 │     ├─ admin.py
-│     ├─ tests.py          # HOS + ELD unit tests (no network)
+│     ├─ tests/            # per-module suite (HOS, ELD, geo, routing, timezone, views)
 │     └─ services/
-│        ├─ routing.py     # geocoding + route (Nominatim / ORS / OSRM)
+│        ├─ routing.py     # geocoding + routing + reverse-geocode (ORS / Nominatim / OSRM)
 │        ├─ timezone.py    # coords -> local time zone + trip start ("now")
+│        ├─ geo.py         # pure polyline math (locate stops along the route)
 │        ├─ hos.py         # Hours-of-Service simulator -> duty-status timeline
 │        └─ eld.py         # timeline -> per-day ELD log sheets (24h off-duty-padded)
 ├─ documentation/          # domain references: HOS rules + ELD log format
@@ -96,6 +97,7 @@ no-ops.
 | Method | Path | Purpose |
 |---|---|---|
 | GET | `/api/health/` | health check |
+| GET | `/api/geocode/?q=` | place autocomplete (US-restricted suggestions) |
 | POST | `/api/trips/` | plan a trip (see below) |
 | GET | `/api/trips/` | list planned trips |
 | GET | `/api/trips/{id}/` | retrieve a trip + its ELD log sheets |
@@ -115,15 +117,24 @@ Content-Type: application/json
 ```
 
 Response (`201`): the trip with resolved coordinates, route summary
-(`total_distance_miles`, `total_duration_hours`, `route_geometry`), `stops`, and
-`log_sheets[]` — each sheet has per-status `totals` and grid-ready `segments`
-(`status`, `start_minute`, `end_minute`, `location`, `note`).
+(`total_distance_miles`, `total_duration_hours`, `route_geometry`), the trip
+`timezone` (IANA), `stops` (each with `[lon, lat]` `coords` and a reverse-geocoded
+`"City, ST"` `location`), and `log_sheets[]` — one per day, each off-duty-padded to
+a full 24h with per-status `totals` and grid-ready `segments` (`status`,
+`start_minute`, `end_minute`, `location`, `note`).
 
 ## Tests
 
 ```bash
 python manage.py test
 ```
+
+Network-free and fast. The HOS/ELD output is validated against an **independent
+re-implementation** of the FMCSA limits (`tests/_helpers.py::HOSComplianceMixin`) —
+so the simulator is checked against the rules, not its own output. Service and
+API-layer tests mock the upstream geocoding/routing calls, and the full
+`POST /api/trips/` flow is covered end-to-end (orchestration → persistence →
+serialization).
 
 ## Deployment (Railway + Postgres)
 
