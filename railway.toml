@@ -1,0 +1,19 @@
+# Railway config-as-code. https://docs.railway.com/reference/config-as-code
+# Single source of truth for how this service builds and runs.
+
+[build]
+builder = "nixpacks"
+
+[deploy]
+# Run DB migrations and gather static files, then serve via gunicorn.
+# $PORT is injected by Railway at runtime.
+startCommand = "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers 3"
+
+# Railway polls this until it returns 2xx before marking the deploy healthy.
+# Uses the /api/health/ endpoint defined in config/urls.py.
+healthcheckPath = "/api/health/"
+healthcheckTimeout = 100
+
+# Restart the container automatically if it crashes.
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10

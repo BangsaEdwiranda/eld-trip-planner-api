@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+/staticfiles/
+*.log
+
+# Environment
+.env
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Internal docs / AI-assistant guidance — keep out of the public repo.
+# (Public, cleaned-up domain references live in documentation/ instead.)
+docs/
+CLAUDE.md
+
+# Source materials (assessment brief .docx, FMCSA PDF, log images) — internal/3rd-party
+intructions/
